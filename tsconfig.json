@@ -5,18 +5,10 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "target": "es2021",
     "sourceMap": true,
-    "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true,
-    "skipLibCheck": true,
-    "strictNullChecks": true,
-    "noImplicitAny": true,
-    "strictBindCallApply": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node"
+    "incremental": true
   }
 }
