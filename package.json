@@ -8,6 +8,7 @@
     "dist"
   ],
   "scripts": {
+    "clean": "rimraf dist && rimraf package-lock.json && rimraf node_modules && npm i",
     "build": "rimraf dist && tsc -p tsconfig.build.json"
   },
   "keywords": [
