@@ -1,6 +1,6 @@
 {
   "name": "nestjs-telemetry",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "NEST.JS Module for telemetry. Supported: Jaeger.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
