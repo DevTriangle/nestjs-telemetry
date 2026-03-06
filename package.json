@@ -1,0 +1,32 @@
+{
+  "name": "nestjs-telemetry",
+  "version": "1.0.0",
+  "description": "NEST.JS Module for telemetry. Supported: Jaeger.",
+  "main": "src/index.ts",
+  "scripts": {},
+  "keywords": [
+    "nestjs",
+    "telemetry"
+  ],
+  "author": "DevTriangle",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nestjs/common": "^11.1.16",
+    "@nestjs/core": "^11.1.16",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.213.0",
+    "@opentelemetry/instrumentation-express": "^0.61.0",
+    "@opentelemetry/instrumentation-http": "^0.213.0",
+    "@opentelemetry/instrumentation-nestjs-core": "^0.59.0",
+    "@opentelemetry/propagator-jaeger": "^2.6.0",
+    "@opentelemetry/resources": "^2.6.0",
+    "@opentelemetry/sdk-node": "^0.213.0",
+    "@opentelemetry/sdk-trace-base": "^2.6.0",
+    "@opentelemetry/semantic-conventions": "^1.40.0",
+    "@types/node": "^25.3.5",
+    "rxjs": "^7.8.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
