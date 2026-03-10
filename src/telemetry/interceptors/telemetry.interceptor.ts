@@ -3,6 +3,7 @@ import { TelemetryService } from '../telemetry.service'
 import { Observable, tap } from 'rxjs'
 import { Attributes, context, propagation, SpanStatusCode, trace } from '@opentelemetry/api'
 import { getNested } from '../../utils/get-nested'
+import { TelemetryConfig } from '../types/config'
 
 @Injectable()
 export class TracingInterceptor implements NestInterceptor {
@@ -14,12 +15,12 @@ export class TracingInterceptor implements NestInterceptor {
   intercept(executionContext: ExecutionContext, next: CallHandler): Observable<any> {
     const req = this.getRequest(executionContext)
     const res = this.getResponse(executionContext)
-    const handler = executionContext.getHandler()
 
     const extractedContext = this.telemetryService.extractContext(req.headers)
+    const config = this.telemetryService.getConfig()
 
     const spanName = `${req.method as string}:${req.url as string}`
-    const additionalAttributes = this.extractAdditionalAttributes(req)
+    const additionalAttributes = this.extractAdditionalAttributes(req, config)
 
     const span = this.telemetryService.startSpan(
       spanName,
@@ -27,7 +28,6 @@ export class TracingInterceptor implements NestInterceptor {
         attributes: {
           'http.method': req.method,
           'http.url': req.url,
-          handler: handler.name,
           ...additionalAttributes,
         },
       },
@@ -49,6 +49,7 @@ export class TracingInterceptor implements NestInterceptor {
         next: () => {
           span.setStatus({ code: SpanStatusCode.OK })
           if (res?.statusCode) span.setAttribute('http.status_code', res.statusCode)
+          if (config.saveBodyOnSuccess) span.setAttribute('http.request.body', this.getBody(req))
 
           span.end()
         },
@@ -58,6 +59,9 @@ export class TracingInterceptor implements NestInterceptor {
             message: error.message,
           })
           span.setAttribute('http.status_code', error.status ?? HttpStatus.INTERNAL_SERVER_ERROR)
+
+          if (config.saveBodyOnError) span.setAttribute('http.request.body', this.getBody(req))
+
           span.recordException(error)
           span.end()
         },
@@ -65,11 +69,25 @@ export class TracingInterceptor implements NestInterceptor {
     )
   }
 
-  private extractAdditionalAttributes(request: any): Attributes {
-    const additionalAttributes = this.telemetryService.getAdditionalAttributesData()
+  private getBody(request: any): string {
+    try {
+      const body = request.body
 
+      if (body === undefined || body === null) return ''
+
+      if (typeof body === 'object') {
+        return JSON.stringify(body)
+      } else {
+        return String(body)
+      }
+    } catch {
+      return 'BODY ERROR'
+    }
+  }
+
+  private extractAdditionalAttributes(request: any, config: TelemetryConfig): Attributes {
     const attributes: Attributes = {}
-    for (const attribute of additionalAttributes) {
+    for (const attribute of config.additionalAttributes ?? []) {
       const keys = attribute.path.split('.')
       const value = getNested(request, keys)
 

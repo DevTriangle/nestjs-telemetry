@@ -121,6 +121,11 @@ export class TelemetryService implements OnModuleInit, OnModuleDestroy {
     return this.config.additionalAttributes ?? []
   }
 
+  /** Get the config. */
+  getConfig(): TelemetryConfig {
+    return this.config
+  }
+
   /** Start the new span.
    * @param name span name
    * @param options span options
