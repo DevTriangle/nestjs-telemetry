@@ -1,6 +1,6 @@
 {
   "name": "nestjs-telemetry",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "NEST.JS Module for telemetry.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
