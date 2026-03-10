@@ -44,6 +44,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/DevTriangle/nestjs-telemetry.git"
+    "url": "git+https://github.com/DevTriangle/nestjs-telemetry.git"
   }
 }
