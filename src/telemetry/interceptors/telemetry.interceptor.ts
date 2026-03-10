@@ -18,7 +18,7 @@ export class TracingInterceptor implements NestInterceptor {
 
     const extractedContext = this.telemetryService.extractContext(req.headers)
 
-    const spanName = `${req.method}:${req.url}`
+    const spanName = `${req.method as string}:${req.url as string}`
     const additionalAttributes = this.extractAdditionalAttributes(req)
 
     const span = this.telemetryService.startSpan(
@@ -27,7 +27,6 @@ export class TracingInterceptor implements NestInterceptor {
         attributes: {
           'http.method': req.method,
           'http.url': req.url,
-          'http.route': req.url,
           handler: handler.name,
           ...additionalAttributes,
         },
@@ -87,6 +86,6 @@ export class TracingInterceptor implements NestInterceptor {
 
   private getResponse(context: ExecutionContext) {
     if (context.getType() === 'http') return context.switchToHttp().getResponse()
-    return null
+    return undefined
   }
 }

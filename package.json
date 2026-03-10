@@ -1,15 +1,18 @@
 {
   "name": "nestjs-telemetry",
   "version": "1.0.3",
-  "description": "NEST.JS Module for telemetry. Supported: Jaeger.",
+  "description": "NEST.JS Module for telemetry.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
+    "lint": "npx eslint \"src/**/*.ts\" --fix",
     "clean": "rimraf dist && rimraf package-lock.json && rimraf node_modules && npm i",
-    "build": "rimraf dist && tsc -p tsconfig.build.json"
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "prepublish": "npm run lint && npm run build",
+    "publish:file": "npm run prepublish && npm pack"
   },
   "keywords": [
     "nestjs",
@@ -21,10 +24,12 @@
   "type": "commonjs",
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/core": "^2.6.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.213.0",
     "@opentelemetry/instrumentation-express": "^0.61.0",
     "@opentelemetry/instrumentation-http": "^0.213.0",
     "@opentelemetry/instrumentation-nestjs-core": "^0.59.0",
+    "@opentelemetry/propagator-b3": "^2.6.0",
     "@opentelemetry/propagator-jaeger": "^2.6.0",
     "@opentelemetry/resources": "^2.6.0",
     "@opentelemetry/sdk-node": "^0.213.0",
@@ -32,10 +37,20 @@
     "@opentelemetry/semantic-conventions": "^1.40.0"
   },
   "devDependencies": {
+    "@darraghor/eslint-plugin-nestjs-typed": "^7.1.26",
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.3.5",
+    "@typescript-eslint/eslint-plugin": "^8.57.0",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-sonarjs": "^4.0.1",
+    "eslint-plugin-unused-imports": "^4.4.1",
     "rimraf": "^6.1.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.0"
   },
   "peerDependencies": {
     "@nestjs/common": "*",

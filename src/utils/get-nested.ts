@@ -1,1 +1,3 @@
-export const getNested = (obj: any, keys: string[]) => keys.reduce((xs, x) => xs?.[x] ?? null, obj)
+export function getNested(obj: any, keys: string[]) {
+  return keys.reduce((xs, x) => xs?.[x] ?? null, obj)
+}

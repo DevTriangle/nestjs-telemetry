@@ -1,5 +1,13 @@
 import { Attributes } from '@opentelemetry/api'
 
+export enum TelemetryPropagators {
+  JAEGER = 'Jaeger',
+  W3C_TRACE_CONTEXT = 'W3CTraceContext',
+  W3C_BAGGAGE = 'W3CBaggage',
+  B3_SINGLE_HEADER = 'B3Single',
+  B3_MULTI_HEADER = 'B3Multi',
+}
+
 export interface AdditionalAttributeData {
   /** Name of attribute. */
   name: string
@@ -26,4 +34,7 @@ export interface TelemetryConfig {
 
   /** Paths to ignore. */
   ignorePaths?: string[]
+
+  /** Paths to ignore. */
+  propagators?: string[]
 }
