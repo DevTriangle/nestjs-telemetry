@@ -1,21 +1,25 @@
 import { CallHandler, ExecutionContext, HttpStatus, Inject, Injectable, NestInterceptor } from '@nestjs/common'
 import { TelemetryService } from '../telemetry.service'
 import { Observable, tap } from 'rxjs'
-import { context, propagation, SpanStatusCode, trace } from '@opentelemetry/api'
+import { Attributes, context, propagation, SpanStatusCode, trace } from '@opentelemetry/api'
+import { getNested } from '../../utils/get-nested'
 
 @Injectable()
 export class TracingInterceptor implements NestInterceptor {
-  constructor(@Inject(TelemetryService) private readonly telemetryService: TelemetryService) {}
+  constructor(
+    @Inject(TelemetryService)
+    private readonly telemetryService: TelemetryService,
+  ) {}
 
   intercept(executionContext: ExecutionContext, next: CallHandler): Observable<any> {
     const req = this.getRequest(executionContext)
     const res = this.getResponse(executionContext)
     const handler = executionContext.getHandler()
-    const controller = executionContext.getClass()
 
     const extractedContext = this.telemetryService.extractContext(req.headers)
 
     const spanName = `${req.method}:${req.url}`
+    const additionalAttributes = this.extractAdditionalAttributes(req)
 
     const span = this.telemetryService.startSpan(
       spanName,
@@ -24,8 +28,8 @@ export class TracingInterceptor implements NestInterceptor {
           'http.method': req.method,
           'http.url': req.url,
           'http.route': req.url,
-          controller: controller.name,
           handler: handler.name,
+          ...additionalAttributes,
         },
       },
       extractedContext,
@@ -60,6 +64,20 @@ export class TracingInterceptor implements NestInterceptor {
         },
       }),
     )
+  }
+
+  private extractAdditionalAttributes(request: any): Attributes {
+    const additionalAttributes = this.telemetryService.getAdditionalAttributesData()
+
+    const attributes: Attributes = {}
+    for (const attribute of additionalAttributes) {
+      const keys = attribute.path.split('.')
+      const value = getNested(request, keys)
+
+      attributes[attribute.name] = value
+    }
+
+    return attributes
   }
 
   private getRequest(context: ExecutionContext) {
