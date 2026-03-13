@@ -7,6 +7,17 @@ import { TelemetryConfig } from '../types/config'
 
 @Injectable()
 export class TracingInterceptor implements NestInterceptor {
+  private defaultSensitivePatterns = [
+    /password/i,
+    /token/i,
+    /secret/i,
+    /credit.?card/i,
+    /ssn/i,
+    /social.?security/i,
+    /authorization/i,
+    /api[_-]?key/i,
+  ]
+
   constructor(
     @Inject(TelemetryService)
     private readonly telemetryService: TelemetryService,
@@ -49,18 +60,23 @@ export class TracingInterceptor implements NestInterceptor {
         next: () => {
           span.setStatus({ code: SpanStatusCode.OK })
           if (res?.statusCode) span.setAttribute('http.status_code', res.statusCode)
-          if (config.saveBodyOnSuccess) span.setAttribute('http.request.body', this.getBody(req))
+          if (config.saveBodyOnSuccess) span.setAttribute('http.request.body', this.getBody(req, config))
 
           span.end()
         },
         error: (error) => {
+          const errorStatus = error.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+          const excludeBodyCodes = config.excludeBodyOnErrorCodes ?? []
           span.setStatus({
             code: SpanStatusCode.ERROR,
             message: error.message,
           })
-          span.setAttribute('http.status_code', error.status ?? HttpStatus.INTERNAL_SERVER_ERROR)
+          span.setAttribute('http.status_code', errorStatus)
 
-          if (config.saveBodyOnError) span.setAttribute('http.request.body', this.getBody(req))
+          // Saving enabled and error code not in excludeBodyCodes
+          if (config.saveBodyOnError && !excludeBodyCodes.includes(errorStatus)) {
+            span.setAttribute('http.request.body', this.getBody(req, config))
+          }
 
           span.recordException(error)
           span.end()
@@ -69,13 +85,14 @@ export class TracingInterceptor implements NestInterceptor {
     )
   }
 
-  private getBody(request: any): string {
+  private getBody(request: any, config: TelemetryConfig): string {
     try {
       const body = request.body
-
       if (body === undefined || body === null) return ''
 
-      if (typeof body === 'object') {
+      const formattedBody = this.sanitizeObject(body, config)
+
+      if (typeof formattedBody === 'object') {
         return JSON.stringify(body)
       } else {
         return String(body)
@@ -95,6 +112,30 @@ export class TracingInterceptor implements NestInterceptor {
     }
 
     return attributes
+  }
+
+  private sanitizeObject(obj: any, config: TelemetryConfig): any {
+    if (!obj || typeof obj !== 'object') return obj
+
+    const patternsToExclude = config.sensitiveKeys ?? this.defaultSensitivePatterns
+
+    const sanitized = Array.isArray(obj) ? [] : {}
+
+    for (const [key, value] of Object.entries(obj)) {
+      if (this.isSensitiveKey(key, patternsToExclude)) {
+        sanitized[key] = '[REDACTED]'
+      } else if (typeof value === 'object' && value !== null) {
+        sanitized[key] = this.sanitizeObject(value, config)
+      } else {
+        sanitized[key] = value
+      }
+    }
+
+    return sanitized
+  }
+
+  private isSensitiveKey(key: string, patterns: RegExp[]): boolean {
+    return patterns.some((pattern) => pattern.test(key))
   }
 
   private getRequest(context: ExecutionContext) {

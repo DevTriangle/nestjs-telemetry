@@ -43,4 +43,10 @@ export interface TelemetryConfig {
 
   /** Save body on error requests. */
   saveBodyOnError?: boolean
+
+  /** Error codes to exclude body from requests. */
+  excludeBodyOnErrorCodes?: number[]
+
+  /** Body keys to exclude. */
+  sensitiveKeys?: RegExp[]
 }
