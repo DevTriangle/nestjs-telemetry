@@ -55,26 +55,34 @@ export class TracingInterceptor implements NestInterceptor {
       })
     }
 
+    const excludeBodyCodes = config.excludeBodyOnStatusCodes ?? []
+
     return next.handle().pipe(
       tap({
         next: () => {
           span.setStatus({ code: SpanStatusCode.OK })
-          if (res?.statusCode) span.setAttribute('http.status_code', res.statusCode)
-          if (config.saveBodyOnSuccess) span.setAttribute('http.request.body', this.getBody(req, config))
+
+          const statusCode = res?.statusCode ?? HttpStatus.OK
+          span.setAttribute('http.status_code', statusCode)
+
+          // Saving enabled and status code not in excludeBodyCodes
+          if (config.saveBodyOnSuccess && !excludeBodyCodes.includes(statusCode)) {
+            span.setAttribute('http.request.body', this.getBody(req, config))
+          }
 
           span.end()
         },
         error: (error) => {
-          const errorStatus = error.status ?? HttpStatus.INTERNAL_SERVER_ERROR
-          const excludeBodyCodes = config.excludeBodyOnErrorCodes ?? []
+          const statusCode = error.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+
           span.setStatus({
             code: SpanStatusCode.ERROR,
             message: error.message,
           })
-          span.setAttribute('http.status_code', errorStatus)
+          span.setAttribute('http.status_code', statusCode)
 
           // Saving enabled and error code not in excludeBodyCodes
-          if (config.saveBodyOnError && !excludeBodyCodes.includes(errorStatus)) {
+          if (config.saveBodyOnError && !excludeBodyCodes.includes(statusCode)) {
             span.setAttribute('http.request.body', this.getBody(req, config))
           }
 
