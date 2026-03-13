@@ -93,9 +93,9 @@ export class TracingInterceptor implements NestInterceptor {
       const formattedBody = this.sanitizeObject(body, config)
 
       if (typeof formattedBody === 'object') {
-        return JSON.stringify(body)
+        return JSON.stringify(formattedBody)
       } else {
-        return String(body)
+        return String(formattedBody)
       }
     } catch {
       return 'BODY ERROR'
