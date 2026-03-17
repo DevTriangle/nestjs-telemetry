@@ -12,76 +12,76 @@ npm install --save nestjs-telemetry
 
 ### Module setup
 
-```
+```typescript
 @Module({
-    imports: [
-        TelemetryModule.forRoot({
-            serviceName: 'gateway',
-            otlpTracesEndpoint: 'http://localhost:4318/v1/traces',
-            additionalAttributes: [{ name: 'user_id', path: 'user.user_id' }],
-            saveBodyOnError: true,
-            excludeBodyOnStatusCodes: [HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus. UNAUTHORIZED],
-        })
-    ]
+  imports: [
+    TelemetryModule.forRoot({
+      serviceName: 'gateway',
+      otlpTracesEndpoint: 'http://localhost:4318/v1/traces',
+      additionalAttributes: [{ name: 'user_id', path: 'user.user_id' }],
+      saveBodyOnError: true,
+      excludeBodyOnStatusCodes: [HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.UNAUTHORIZED],
+    }),
+  ],
 })
 export class AppModule {}
 ```
 
 The async way is to use TelemetryModule.forRootAsync
 
-```
+```typescript
 @Module({
-    imports: [
-        TelemetryModule.forRootAsync({
-            inject: [ConfigService],
-            useFactory: (config: ConfigService) => ({
-                serviceName: config.get('service_name'),
-                otlpTracesEndpoint: config.get('otlp_traces_endpoint'),
-                additionalAttributes: [{ name: 'user_id', path: 'user.user_id' }],
-                saveBodyOnError: true,
-                excludeBodyOnStatusCodes: [HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.UNAUTHORIZED],
-            })
-        })
-    ]
+  imports: [
+    TelemetryModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        serviceName: config.get('service_name'),
+        otlpTracesEndpoint: config.get('otlp_traces_endpoint'),
+        additionalAttributes: [{ name: 'user_id', path: 'user.user_id' }],
+        saveBodyOnError: true,
+        excludeBodyOnStatusCodes: [HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.UNAUTHORIZED],
+      }),
+    }),
+  ],
 })
 export class AppModule {}
 ```
 
 ### TelemetryModule options
 
-```
+```typescript
 export interface TelemetryConfig {
-    /** Service name. */
-    serviceName?: string
+  /** Service name. */
+  serviceName?: string
 
-    /** Environment. */
-    environment?: 'production' | 'development'
+  /** Environment. */
+  environment?: 'production' | 'development'
 
-    /** OTLP traces endpoint URL. */
-    otlpTracesEndpoint?: string
+  /** OTLP traces endpoint URL. */
+  otlpTracesEndpoint?: string
 
-    /** Default tracing attributes. */
-    defaultAttributes?: Attributes
+  /** Default tracing attributes. */
+  defaultAttributes?: Attributes
 
-    /** Additional request attributes. */
-    additionalAttributes?: AdditionalAttributeData[]
+  /** Additional request attributes. */
+  additionalAttributes?: AdditionalAttributeData[]
 
-    /** Paths to ignore. */
-    ignorePaths?: string[]
+  /** Paths to ignore. */
+  ignorePaths?: string[]
 
-    /** Paths to ignore. */
-    propagators?: string[]
+  /** Paths to ignore. */
+  propagators?: string[]
 
-    /** Save body on success requests. */
-    saveBodyOnSuccess?: boolean
+  /** Save body on success requests. */
+  saveBodyOnSuccess?: boolean
 
-    /** Save body on error requests. */
-    saveBodyOnError?: boolean
+  /** Save body on error requests. */
+  saveBodyOnError?: boolean
 
-    /** Status codes to exclude body from requests. */
-    excludeBodyOnStatusCodes?: number[]
+  /** Status codes to exclude body from requests. */
+  excludeBodyOnStatusCodes?: number[]
 
-    /** Body keys to exclude. */
-    sensitiveKeys?: RegExp[]
+  /** Body keys to exclude. */
+  sensitiveKeys?: RegExp[]
 }
 ```
