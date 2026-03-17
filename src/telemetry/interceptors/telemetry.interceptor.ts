@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, HttpStatus, Inject, Injectable, NestInterceptor } from '@nestjs/common'
 import { TelemetryService } from '../telemetry.service'
 import { Observable, tap } from 'rxjs'
-import { Attributes, propagation, SpanStatusCode, trace } from '@opentelemetry/api'
+import { Attributes, context, propagation, SpanStatusCode, trace } from '@opentelemetry/api'
 import { getNested } from '../../utils/get-nested'
 import { TelemetryConfig } from '../types/config'
 
@@ -45,7 +45,7 @@ export class TracingInterceptor implements NestInterceptor {
       extractedContext,
     )
 
-    const ctx = trace.setSpan(extractedContext, span)
+    const ctx = trace.setSpan(context.active(), span)
 
     if (res) {
       const carrier = {}
