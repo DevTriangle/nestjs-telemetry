@@ -35,8 +35,8 @@ export interface TelemetryConfig {
   /** Paths to ignore. */
   ignorePaths?: string[]
 
-  /** Paths to ignore. */
-  propagators?: string[]
+  /** Context propagators. */
+  propagators?: TelemetryPropagators[]
 
   /** Save body on success requests. */
   saveBodyOnSuccess?: boolean

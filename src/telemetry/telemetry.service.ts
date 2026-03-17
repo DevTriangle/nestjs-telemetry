@@ -154,7 +154,7 @@ export class TelemetryService implements OnModuleInit, OnModuleDestroy {
   }
 
   /** Extract context from carrier (e.g. headers). */
-  extractContext(carrier: any): Context | undefined {
+  extractContext(carrier: any): Context {
     return propagation.extract(context.active(), carrier)
   }
 
