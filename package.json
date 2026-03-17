@@ -17,7 +17,11 @@
   "keywords": [
     "nestjs",
     "telemetry",
-    "typescript"
+    "typescript",
+    "jaeger",
+    "otel",
+    "opentelemetry",
+    "tracing"
   ],
   "author": "DevTriangle",
   "license": "MIT",
